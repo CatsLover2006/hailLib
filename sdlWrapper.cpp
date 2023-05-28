@@ -25,6 +25,7 @@ namespace SDLwrapper {
 
 	Image::Image(std::string filename, Window * context) {
 		texLoad = IMG_Load(filename.c_str());
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear"); // AA
 		tex = SDL_CreateTextureFromSurface(context->internalGetRenderer(), texLoad);
 		w = texLoad->w;
 		h = texLoad->h;

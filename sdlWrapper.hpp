@@ -15,7 +15,6 @@ namespace SDLwrapper {
 	class Image {
 	public:
 		uint64_t linkedWindow, imageID;
-
 		SDL_Texture * getImage();
 		long w, h;
 		Image(std::string filename, Window * context);
