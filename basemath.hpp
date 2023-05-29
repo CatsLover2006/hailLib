@@ -1,23 +1,34 @@
 namespace hailMath {
 
-	float abs(float x);
+	float abs_q(float x);
 
-	double abs(double x);
+	double abs_q(double x);
 
-	short abs(short x);
+	template <typename Number> Number abs (Number x) {
+		if (x < 0) return -x;
+		return x;
+	}
 
-	int abs(int x);
+	template <typename Number> Number constrain (Number x, Number l, Number t) {
+		if (x < l) return l;
+		if (x > t) return t;
+		return x;
+	}
 
-	long abs(long x);
+	template <typename Number> Number max (Number a, Number b) {
+		if (a > b) return a;
+		return b;
+	}
 
-	long long abs(long long x);
+	template <typename Number> Number min (Number a, Number b) {
+		if (a < b) return a;
+		return b;
+	}
+	
+	template <typename Number> Number lerp(Number a, Number b, Number t) {
+		return a*t + (1-t)*b;
+	}
 
-	float constrain(float x, float min, float max);
-
-	float max (float a, float b);
-
-	float min (float a, float b);
-
-	extern float pi;
+	extern double pi;
 
 }

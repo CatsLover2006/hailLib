@@ -50,6 +50,8 @@ namespace SDLwrapper {
 		void drawImageEx(Image* image, double x, double y, double w, double h, double angle);
 		void drawImageEx(Image* image, double x, double y, bool flipH, bool flipV, double angle);
 		void drawImageEx(Image* image, double x, double y, double w, double h, bool flipH, bool flipV, double angle);
+		void translate(double x, double y);
+		void resetTranslation();
 		void runInput();
 		bool keyPressed(std::string key);
 		void quit();
@@ -57,5 +59,6 @@ namespace SDLwrapper {
 	private: 
 		SDL_Renderer *renderer;
 		SDL_Window *window;
+		double x, y;
 	};
 }

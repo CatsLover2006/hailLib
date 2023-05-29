@@ -64,7 +64,18 @@ namespace SDLwrapper {
 			printf("Failed to create renderer: %s\n", SDL_GetError());
 			exit(1);
 		}
+		resetTranslation();
 		windowID = idGenerator(random);
+	}
+
+	void Window::resetTranslation() {
+		x = 0;
+		y = 0;
+	}
+
+	void Window::translate(double x, double y) {
+		this->x += x;
+		this->y += y;
 	}
 
 	void Window::presentWindow() {
@@ -79,8 +90,8 @@ namespace SDLwrapper {
 	void Window::drawRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = x;
-		rect.y = y;
+		rect.x = x + this->x;
+		rect.y = y + this->y;
 		rect.w = w;
 		rect.h = h;
     	SDL_RenderFillRect(renderer, &rect);
@@ -94,8 +105,8 @@ namespace SDLwrapper {
 	void Window::strokeRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = x;
-		rect.y = y;
+		rect.x = x + this->x;
+		rect.y = y + this->y;
 		rect.w = w;
 		rect.h = h;
     	SDL_RenderDrawRect(renderer, &rect);
@@ -118,8 +129,8 @@ namespace SDLwrapper {
 	void Window::drawImage(Image* image, double x, double y, double w, double h) {
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = x;
-		loc.y = y;
+		loc.x = x + this->x;
+		loc.y = y + this->y;
 		loc.w = w;
 		loc.h = h;
 		SDL_RenderCopyF(renderer, image->getImage(), NULL, &loc);
@@ -148,8 +159,8 @@ namespace SDLwrapper {
 	void Window::drawImageEx(Image* image, double x, double y, double w, double h, bool flipH, bool flipV, double angle) {
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = x;
-		loc.y = y;
+		loc.x = x + this->x;
+		loc.y = y + this->y;
 		loc.w = w;
 		loc.h = h;
 		SDL_RendererFlip flipMode = SDL_FLIP_NONE;
