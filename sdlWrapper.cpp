@@ -127,6 +127,7 @@ namespace SDLwrapper {
 	}
 
 	void Window::drawImage(Image* image, double x, double y, double w, double h) {
+		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
 		loc.x = x + this->x;
@@ -157,6 +158,7 @@ namespace SDLwrapper {
 	}
 
 	void Window::drawImageEx(Image* image, double x, double y, double w, double h, bool flipH, bool flipV, double angle) {
+		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
 		loc.x = x + this->x;

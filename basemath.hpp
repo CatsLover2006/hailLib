@@ -28,6 +28,10 @@ namespace hailMath {
 	template <typename Number> Number lerp(Number a, Number b, Number t) {
 		return a*t + (1-t)*b;
 	}
+	
+	template <typename Number> Number sign(Number x) {
+		return x / abs<Number>(x);
+	}
 
 	extern double pi;
 
