@@ -8,7 +8,7 @@
 namespace SDLwrapper {
 	std::mt19937_64 random;
 	std::uniform_int_distribution<uint64_t> idGenerator(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
-	SDL_Surface * texLoad;
+	
 	Color::Color(uint8_t r, uint8_t g, uint8_t b) {
 		Color(r, g, b, 255);
 	}
@@ -19,12 +19,25 @@ namespace SDLwrapper {
 		this->a = a;
 	}
 
+	Font::Font(std::string filename, int fontSize) {
+		fontID = idGenerator(random);
+		font = TTF_OpenFont(filename.c_str(), fontSize);
+	}
+
+	Font::~Font() {
+		TTF_CloseFont(font);
+	}
+
+	TTF_Font * Font::getFont() {
+		return font;
+	}
+
 	SDL_Texture * Image::getImage() {
 		return tex;
 	}
 
 	Image::Image(std::string filename, Window * context) {
-		texLoad = IMG_Load(filename.c_str());
+		SDL_Surface * texLoad = IMG_Load(filename.c_str());
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear"); // AA
 		tex = SDL_CreateTextureFromSurface(context->internalGetRenderer(), texLoad);
 		w = texLoad->w;
@@ -48,7 +61,7 @@ namespace SDLwrapper {
 	Window::Window(long w, long h, std::string name) {
 		int rendererFlags, windowFlags;
 		rendererFlags = SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC;
-		windowFlags = SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL;
+		windowFlags = SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			printf("Couldn't initialize SDL: %s\n", SDL_GetError());
 			exit(1);
@@ -65,6 +78,7 @@ namespace SDLwrapper {
 			exit(1);
 		}
 		resetTranslation();
+		TTF_Init();
 		windowID = idGenerator(random);
 	}
 
@@ -180,6 +194,10 @@ namespace SDLwrapper {
 					exit(0);
 					continue;
 				}
+				case SDL_MOUSEMOTION: {
+	                SDL_GetMouseState(&mouseX, &mouseY);
+	                break;
+	            }
 				case SDL_KEYDOWN:
 				case SDL_KEYUP: {
 					if (event.key.repeat) continue;
@@ -204,7 +222,37 @@ namespace SDLwrapper {
 	}
 
 	void Window::quit() {
+		TTF_Quit();
 		SDL_Quit();
+		delete this;
+	}
+		
+	void Window::drawText(std::string str, Font * font, Color * color, double x, double y) {
+		SDL_Surface * txt = TTF_RenderUTF8_Blended(font->getFont(), str.c_str(), {.r = color->r, .g = color->g, .b = color->b, .a = color->a});
+		if (!txt) return;
+		SDL_Texture * text = SDL_CreateTextureFromSurface(renderer, txt);
+		SDL_FRect loc;
+		loc.x = x + this->x;
+		loc.y = y + this->y;
+		loc.w = txt->w;
+		loc.h = txt->h;
+		SDL_RenderCopyF(renderer, text, NULL, &loc);
+		SDL_FreeSurface(txt);
+		SDL_DestroyTexture(text);
+	}
+		
+	void Window::drawTextCentered(std::string str, Font * font, Color * color, double x, double y) {
+		SDL_Surface * txt = TTF_RenderUTF8_Blended(font->getFont(), str.c_str(), {.r = color->r, .g = color->g, .b = color->b, .a = color->a});
+		if (!txt) return;
+		SDL_Texture * text = SDL_CreateTextureFromSurface(renderer, txt);
+		SDL_FRect loc;
+		loc.x = x + this->x - txt->w/2;
+		loc.y = y + this->y - txt->h/2;
+		loc.w = txt->w;
+		loc.h = txt->h;
+		SDL_RenderCopyF(renderer, text, NULL, &loc);
+		SDL_FreeSurface(txt);
+		SDL_DestroyTexture(text);
 	}
 
 	bool Window::keyPressed(std::string key) {

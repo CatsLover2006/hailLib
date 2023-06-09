@@ -30,6 +30,7 @@ namespace hailMath {
 	}
 	
 	template <typename Number> Number sign(Number x) {
+		if (!x) return 0;
 		return x / abs<Number>(x);
 	}
 

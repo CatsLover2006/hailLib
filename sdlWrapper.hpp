@@ -1,5 +1,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 
 namespace SDLwrapper {
 	class Window;
@@ -21,6 +22,15 @@ namespace SDLwrapper {
 		~Image();
 	private:
 		SDL_Texture * tex;
+	};
+	class Font {
+	public:
+		uint64_t fontID;
+		TTF_Font * getFont();
+		Font(std::string filename, int fontSize);
+		~Font();
+	private:
+		TTF_Font * font;
 	};
 	class Window {
 	public:
@@ -50,6 +60,8 @@ namespace SDLwrapper {
 		void drawImageEx(Image* image, double x, double y, double w, double h, double angle);
 		void drawImageEx(Image* image, double x, double y, bool flipH, bool flipV, double angle);
 		void drawImageEx(Image* image, double x, double y, double w, double h, bool flipH, bool flipV, double angle);
+		void drawText(std::string str, Font * font, Color * color, double x, double y);
+		void drawTextCentered(std::string str, Font * font, Color * color, double x, double y);
 		void translate(double x, double y);
 		void resetTranslation();
 		void runInput();
