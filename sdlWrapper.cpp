@@ -7,7 +7,7 @@
 #include "basemath.hpp"
 
 namespace SDLwrapper {
-	double globalScaleX, globalScaleY, requestedScale;
+	double globalScale, requestedScale;
 
 	std::mt19937_64 random;
 	std::uniform_int_distribution<uint64_t> idGenerator(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
@@ -24,7 +24,7 @@ namespace SDLwrapper {
 
 	Font::Font(std::string filename, int fontSize) {
 		fontID = idGenerator(random);
-		fontResOffset = hailMath::max<double>(globalScaleX, globalScaleY);
+		fontResOffset = hailMath::max<double>(globalScale, globalScale);
 		font = TTF_OpenFont(filename.c_str(), fontSize * fontResOffset);
 	}
 
@@ -86,14 +86,12 @@ namespace SDLwrapper {
 		windowID = idGenerator(random);
 		int tW, tH;
 		SDL_GetWindowSize(window, &tW, &tH);
-		globalScaleX = (tW * 1.0) / w;
-		globalScaleY = (tH * 1.0) / h;
+		globalScale = hailMath::min<double>((tW * 1.0) / w, (tH * 1.0) / h);
 	}
 
 	void Window::resetTranslation() {
 		x = 0;
 		y = 0;
-		SDL_RenderSetScale(renderer, globalScaleX, globalScaleY);
 	}
 
 	void Window::translate(double x, double y) {
@@ -106,8 +104,8 @@ namespace SDLwrapper {
 	}
 
 	void Window::scaleWindow(double s) {
-		globalScaleY *= s;
-		globalScaleX *= s;
+		globalScale *= s;
+		globalScale *= s;
 		requestedScale = s;
 	}
 
@@ -119,10 +117,10 @@ namespace SDLwrapper {
 	void Window::drawRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = (x + this->x) * globalScaleX;
-		rect.y = (y + this->y) * globalScaleY;
-		rect.w = w * globalScaleX;
-		rect.h = h * globalScaleY;
+		rect.x = (x + this->x) * globalScale;
+		rect.y = (y + this->y) * globalScale;
+		rect.w = w * globalScale;
+		rect.h = h * globalScale;
     	SDL_RenderFillRect(renderer, &rect);
 	}
 
@@ -134,10 +132,10 @@ namespace SDLwrapper {
 	void Window::strokeRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = (x + this->x) * globalScaleX;
-		rect.y = (y + this->y) * globalScaleY;
-		rect.w = w * globalScaleX;
-		rect.h = h * globalScaleY;
+		rect.x = (x + this->x) * globalScale;
+		rect.y = (y + this->y) * globalScale;
+		rect.w = w * globalScale;
+		rect.h = h * globalScale;
     	SDL_RenderDrawRect(renderer, &rect);
 	}
 
@@ -159,10 +157,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = (x + this->x) * globalScaleX;
-		loc.y = (y + this->y) * globalScaleY;
-		loc.w = w * globalScaleX;
-		loc.h = h * globalScaleY;
+		loc.x = (x + this->x) * globalScale;
+		loc.y = (y + this->y) * globalScale;
+		loc.w = w * globalScale;
+		loc.h = h * globalScale;
 		SDL_RenderCopyF(renderer, image->getImage(), NULL, &loc);
 	}
 
@@ -190,10 +188,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = (x + this->x) * globalScaleX;
-		loc.y = (y + this->y) * globalScaleY;
-		loc.w = w * globalScaleX;
-		loc.h = h * globalScaleY;
+		loc.x = (x + this->x) * globalScale;
+		loc.y = (y + this->y) * globalScale;
+		loc.w = w * globalScale;
+		loc.h = h * globalScale;
 		SDL_RendererFlip flipMode = SDL_FLIP_NONE;
 		if (flipH) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_HORIZONTAL);
 		if (flipV) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_VERTICAL);
@@ -211,9 +209,9 @@ namespace SDLwrapper {
 				}
 				case SDL_MOUSEMOTION: {
 	                SDL_GetMouseState(&mouseX, &mouseY);
-	                mouseX /= globalScaleX;
+	                mouseX /= globalScale;
 	                mouseX /= requestedScale;
-	                mouseY /= globalScaleY;
+	                mouseY /= globalScale;
 	                mouseY /= requestedScale;
 	                break;
 	            }
