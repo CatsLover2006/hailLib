@@ -4,8 +4,11 @@
 #include <vector>
 #include <algorithm>
 #include "sdlWrapper.hpp"
+#include "basemath.hpp"
 
 namespace SDLwrapper {
+	double globalScaleX, globalScaleY, requestedScale;
+
 	std::mt19937_64 random;
 	std::uniform_int_distribution<uint64_t> idGenerator(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
 	
@@ -21,7 +24,8 @@ namespace SDLwrapper {
 
 	Font::Font(std::string filename, int fontSize) {
 		fontID = idGenerator(random);
-		font = TTF_OpenFont(filename.c_str(), fontSize);
+		fontResOffset = hailMath::max<double>(globalScaleX, globalScaleY);
+		font = TTF_OpenFont(filename.c_str(), fontSize * fontResOffset);
 	}
 
 	Font::~Font() {
@@ -80,11 +84,16 @@ namespace SDLwrapper {
 		resetTranslation();
 		TTF_Init();
 		windowID = idGenerator(random);
+		int tW, tH;
+		SDL_GetWindowSize(window, &tW, &tH);
+		globalScaleX = (tW * 1.0) / w;
+		globalScaleY = (tH * 1.0) / h;
 	}
 
 	void Window::resetTranslation() {
 		x = 0;
 		y = 0;
+		SDL_RenderSetScale(renderer, globalScaleX, globalScaleY);
 	}
 
 	void Window::translate(double x, double y) {
@@ -96,6 +105,12 @@ namespace SDLwrapper {
 		SDL_RenderPresent(renderer);
 	}
 
+	void Window::scaleWindow(double s) {
+		globalScaleY *= s;
+		globalScaleX *= s;
+		requestedScale = s;
+	}
+
 	void Window::clearScreen(Color * color) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_RenderClear(renderer);
@@ -104,10 +119,10 @@ namespace SDLwrapper {
 	void Window::drawRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = x + this->x;
-		rect.y = y + this->y;
-		rect.w = w;
-		rect.h = h;
+		rect.x = (x + this->x) * globalScaleX;
+		rect.y = (y + this->y) * globalScaleY;
+		rect.w = w * globalScaleX;
+		rect.h = h * globalScaleY;
     	SDL_RenderFillRect(renderer, &rect);
 	}
 
@@ -119,10 +134,10 @@ namespace SDLwrapper {
 	void Window::strokeRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = x + this->x;
-		rect.y = y + this->y;
-		rect.w = w;
-		rect.h = h;
+		rect.x = (x + this->x) * globalScaleX;
+		rect.y = (y + this->y) * globalScaleY;
+		rect.w = w * globalScaleX;
+		rect.h = h * globalScaleY;
     	SDL_RenderDrawRect(renderer, &rect);
 	}
 
@@ -144,10 +159,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = x + this->x;
-		loc.y = y + this->y;
-		loc.w = w;
-		loc.h = h;
+		loc.x = (x + this->x) * globalScaleX;
+		loc.y = (y + this->y) * globalScaleY;
+		loc.w = w * globalScaleX;
+		loc.h = h * globalScaleY;
 		SDL_RenderCopyF(renderer, image->getImage(), NULL, &loc);
 	}
 
@@ -175,10 +190,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = x + this->x;
-		loc.y = y + this->y;
-		loc.w = w;
-		loc.h = h;
+		loc.x = (x + this->x) * globalScaleX;
+		loc.y = (y + this->y) * globalScaleY;
+		loc.w = w * globalScaleX;
+		loc.h = h * globalScaleY;
 		SDL_RendererFlip flipMode = SDL_FLIP_NONE;
 		if (flipH) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_HORIZONTAL);
 		if (flipV) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_VERTICAL);
@@ -196,6 +211,10 @@ namespace SDLwrapper {
 				}
 				case SDL_MOUSEMOTION: {
 	                SDL_GetMouseState(&mouseX, &mouseY);
+	                mouseX /= globalScaleX;
+	                mouseX /= requestedScale;
+	                mouseY /= globalScaleY;
+	                mouseY /= requestedScale;
 	                break;
 	            }
 				case SDL_KEYDOWN:
@@ -234,8 +253,8 @@ namespace SDLwrapper {
 		SDL_FRect loc;
 		loc.x = x + this->x;
 		loc.y = y + this->y;
-		loc.w = txt->w;
-		loc.h = txt->h;
+		loc.w = txt->w / font->fontResOffset;
+		loc.h = txt->h / font->fontResOffset;
 		SDL_RenderCopyF(renderer, text, NULL, &loc);
 		SDL_FreeSurface(txt);
 		SDL_DestroyTexture(text);
@@ -246,10 +265,10 @@ namespace SDLwrapper {
 		if (!txt) return;
 		SDL_Texture * text = SDL_CreateTextureFromSurface(renderer, txt);
 		SDL_FRect loc;
-		loc.x = x + this->x - txt->w/2;
-		loc.y = y + this->y - txt->h/2;
-		loc.w = txt->w;
-		loc.h = txt->h;
+		loc.x = x + this->x - txt->w/font->fontResOffset/2;
+		loc.y = y + this->y - txt->h/font->fontResOffset/2;
+		loc.w = txt->w / font->fontResOffset;
+		loc.h = txt->h / font->fontResOffset;
 		SDL_RenderCopyF(renderer, text, NULL, &loc);
 		SDL_FreeSurface(txt);
 		SDL_DestroyTexture(text);

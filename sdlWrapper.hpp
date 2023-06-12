@@ -29,6 +29,7 @@ namespace SDLwrapper {
 		TTF_Font * getFont();
 		Font(std::string filename, int fontSize);
 		~Font();
+		double fontResOffset;
 	private:
 		TTF_Font * font;
 	};
@@ -63,6 +64,7 @@ namespace SDLwrapper {
 		void drawText(std::string str, Font * font, Color * color, double x, double y);
 		void drawTextCentered(std::string str, Font * font, Color * color, double x, double y);
 		void translate(double x, double y);
+		void scaleWindow(double s);
 		void resetTranslation();
 		void runInput();
 		bool keyPressed(std::string key);
