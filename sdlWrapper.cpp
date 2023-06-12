@@ -85,7 +85,7 @@ namespace SDLwrapper {
 		TTF_Init();
 		windowID = idGenerator(random);
 		int tW, tH;
-		SDL_GetWindowSize(window, &tW, &tH);
+		SDL_GetRendererOutputSize(window, &tW, &tH);
 		globalScale = hailMath::min<double>((tW * 1.0) / w, (tH * 1.0) / h);
 	}
 
