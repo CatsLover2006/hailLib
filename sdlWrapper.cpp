@@ -92,6 +92,7 @@ namespace SDLwrapper {
 	void Window::resetTranslation() {
 		x = 0;
 		y = 0;
+		SDL_RenderSetScale(renderer, globalScale, globalScale);
 	}
 
 	void Window::translate(double x, double y) {
@@ -117,10 +118,10 @@ namespace SDLwrapper {
 	void Window::drawRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = (x + this->x) * globalScale;
-		rect.y = (y + this->y) * globalScale;
-		rect.w = w * globalScale;
-		rect.h = h * globalScale;
+		rect.x = (x + this->x) ;
+		rect.y = (y + this->y) ;
+		rect.w = w ;
+		rect.h = h ;
     	SDL_RenderFillRect(renderer, &rect);
 	}
 
@@ -132,10 +133,10 @@ namespace SDLwrapper {
 	void Window::strokeRect(Color * color, double x, double y, double w, double h) {
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);
 		SDL_Rect rect;
-		rect.x = (x + this->x) * globalScale;
-		rect.y = (y + this->y) * globalScale;
-		rect.w = w * globalScale;
-		rect.h = h * globalScale;
+		rect.x = (x + this->x) ;
+		rect.y = (y + this->y) ;
+		rect.w = w ;
+		rect.h = h ;
     	SDL_RenderDrawRect(renderer, &rect);
 	}
 
@@ -157,10 +158,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = (x + this->x) * globalScale;
-		loc.y = (y + this->y) * globalScale;
-		loc.w = w * globalScale;
-		loc.h = h * globalScale;
+		loc.x = (x + this->x) ;
+		loc.y = (y + this->y) ;
+		loc.w = w ;
+		loc.h = h ;
 		SDL_RenderCopyF(renderer, image->getImage(), NULL, &loc);
 	}
 
@@ -188,10 +189,10 @@ namespace SDLwrapper {
 		if (image == nullptr) return;
 		if (windowID != image->linkedWindow) return;
 		SDL_FRect loc;
-		loc.x = (x + this->x) * globalScale;
-		loc.y = (y + this->y) * globalScale;
-		loc.w = w * globalScale;
-		loc.h = h * globalScale;
+		loc.x = (x + this->x) ;
+		loc.y = (y + this->y) ;
+		loc.w = w ;
+		loc.h = h ;
 		SDL_RendererFlip flipMode = SDL_FLIP_NONE;
 		if (flipH) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_HORIZONTAL);
 		if (flipV) flipMode = (SDL_RendererFlip)(flipMode | SDL_FLIP_VERTICAL);
